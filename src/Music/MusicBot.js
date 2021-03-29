@@ -22,8 +22,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 
-const Package = require('../package.json');
-const Language = require('../language/language.json');
+//const Package = require('../package.json');
+const Language = require('./language/language.json');
 
 const { MessageEmbed } = require('discord.js');
 const ytdl = require('ytdl-core');
@@ -146,7 +146,7 @@ class MusicBot {
             nothing: Language.presence.nothing || '🎵 Nothing',
         };
 
-        console.log(`\x1b[33m------- Discord Music System -------\n\x1b[33m> \x1b[32mVersion: \x1b[37m${Package.version}\n\x1b[33m> \x1b[32mState: \x1b[37m\x1b[7mLoaded\x1b[0m\n\x1b[33m------------- Music Bot ------------\x1b[37m\n\x1b[44mNEW:\x1b[0m  \x1b[4mCustom language translation: edit the language.json in the language folder!\x1b[0m`);
+        console.log(`\x1b[33m------- Discord Music System -------\n\x1b[33m> \x1b[32mVersion: \x1b[37m1.0.0\n\x1b[33m> \x1b[32mState: \x1b[37m\x1b[7mLoaded\x1b[0m\n\x1b[33m------------- Music Bot ------------\x1b[37m\n\x1b[44mNEW:\x1b[0m  \x1b[4mCustom language translation: edit the language.json in the language folder!\x1b[0m`);
     };
 
     /**
@@ -223,6 +223,18 @@ class MusicBot {
                 return this.playQuery(args, message);
             };
         };
+        
+        /*
+        Loop command
+        */
+        if(message.content === (this.prefix + 'loop'))
+        {
+            const serverQueue = this.queue.get(message.guild.id);
+            if(!message.member.voice.channel) return this.sendErrorEmbed(this.messages.voiceChannelNeeded);
+            if(!serverQueue) return this.sendErrorEmbed(this.messages.nothingPlaying);
+            serverQueue.loop = !serverQueue.loop
+            return message.channel.send(new MessageEmbed().setTimestamp().setColor('#FFFF00').setTitle('Info').setDescription(`I have now ${queue.loop ? `**enabled**` : `**disabled**`} loop`));
+        }
 
         /*
         Stop command
@@ -640,7 +652,7 @@ class MusicBot {
         message.guild.me.voice.setSelfDeaf(true);
         const dispatcher = queue.connection.play(ytdl(song.url))
             .on('finish', async () => {
-                queue.songs.shift();
+                if(!queue.loop) queue.songs.shift();
                 this.playSong(queue.songs[0], message, serverQueue);
                 //await this.updateClientPresence(message);
             })
@@ -863,9 +875,20 @@ class MusicBot {
                         this.messagesReactions.delete(message.guild.id);
                     };
                     break;
+                case '🔁':
+                    reaction.users.remove(user).catch(console.error);
+                    if (!this.canReact(member)) {
+                        return;
+                    };
+                    //if(!message.member.voice.channel) return this.sendErrorEmbed(this.messages.voiceChannelNeeded);
+                    if(!queue) return this.sendErrorEmbed(this.messages.nothingPlaying);
+                    queue.loop = !queue.loop
+                    message.channel.send(new MessageEmbed().setTimestamp().setColor('#FFFF00').setTitle('Info').setDescription(`I have now ${queue.loop ? `**enabled**` : `**disabled**`} loop`));
+                    break;
                 default:
                     reaction.users.remove(user).catch(console.error);
                     break;
+                
             };
         });
         collector.on('end', () => {
