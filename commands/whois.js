@@ -11,7 +11,7 @@ module.exports = {
         {
             message.channel.send(new MessageEmbed().setColor('#ffa500').setAuthor(message.author.tag, message.member.user.displayAvatarURL()).setDescription(`Owner : ${message.guild.owner}`));
         }
-        if(args[0] === 'verified')
+        if(args[0] === 'Verified')
         {
             const VerifiedRole = message.guild.roles.cache.find(role => role.name == "Verified");
             const VerifiedMembers = message.guild.members.cache.filter(member => member.roles.cache.find(role => role == VerifiedRole)).map(member => member.user.tag);
@@ -24,7 +24,7 @@ module.exports = {
                 return message.channel.send(new MessageEmbed().setAuthor(message.author.tag, message.member.user.displayAvatarURL()).setDescription(`There is no Member that Has ${VerifiedRole} Role`));
             }
         }
-        if(args[0] === 'admin')
+        if(args[0] === 'Admin')
         {
             const AdminRole = message.guild.roles.cache.find(role => role.name == "Stalin");
             const AdminMembers = message.guild.members.cache.filter(member => member.roles.cache.find(role => role == AdminRole)).map(member => member.user.tag);
