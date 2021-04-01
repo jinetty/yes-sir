@@ -38,7 +38,8 @@ module.exports = {
                 })
             })
         }
-        weatherinfo(args[0], function(result){
+        let city = args.join(" ");
+        weatherinfo(city, function(result){
             message.channel.send(new MessageEmbed().setTitle('Weather Result').setDescription(result))
         });
     }
